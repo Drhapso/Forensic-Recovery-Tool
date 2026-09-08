@@ -6,7 +6,8 @@ en controles desplegables (QComboBox) y ventanas modales emergentes (Pop-ups).
 
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
-    QPushButton, QGroupBox, QCheckBox, QMessageBox, QFrame
+    QPushButton, QGroupBox, QCheckBox, QMessageBox, QFrame,
+    QScrollArea
 )
 from PyQt5.QtCore import Qt, pyqtSignal
 from core.disk_utils import is_admin, restart_as_admin
@@ -121,9 +122,43 @@ class ScanPanel(QWidget):
         self._update_types_summary()
 
     def _init_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(10)
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setStyleSheet("""
+            QScrollArea {
+                background: transparent;
+                border: none;
+            }
+            QScrollBar:vertical {
+                background: #0d1117;
+                width: 7px;
+                border-radius: 3px;
+            }
+            QScrollBar::handle:vertical {
+                background: #30363d;
+                border-radius: 3px;
+                min-height: 24px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background: #58a6ff;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+        """)
+
+        container = QWidget()
+        container.setObjectName("ScanPanelContainer")
+        container.setStyleSheet("background: transparent;")
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(8, 6, 8, 6)
+        layout.setSpacing(8)
 
         # 1. Menú Desplegable: Protocolo de Recuperación
         group_protocol = QGroupBox("1. PROTOCOLO DE RECUPERACIÓN")
@@ -252,6 +287,9 @@ class ScanPanel(QWidget):
         actions_row.addWidget(self.btn_cancel, stretch=1)
 
         layout.addLayout(actions_row)
+
+        scroll.setWidget(container)
+        main_layout.addWidget(scroll)
 
         # Actualizar recomendaciones iniciales
         self._on_categories_changed()

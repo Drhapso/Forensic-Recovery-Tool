@@ -434,8 +434,179 @@ mark.search-match {
     font-weight: bold;
 }
 
+/* -------------------------------------------------------------
+   SISTEMA DE RESPONSIVIDAD INTEGRAL Y ADAPTABILIDAD MULTIPANTALLA
+   ------------------------------------------------------------- */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 24px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.table-container table {
+    margin-bottom: 0 !important;
+    min-width: 480px;
+}
+
+.btn-toggle-nav {
+    display: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--accent);
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle-nav:hover {
+    background-color: var(--border-color);
+    color: var(--accent-hover);
+}
+
+.nav-backdrop {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(3px);
+    z-index: 990;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+body.nav-open .nav-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Breakpoint: Laptops Compactas y Pantallas Medianas (<= 1120px) */
+@media (max-width: 1120px) {
+    .app-container > .toc-panel:last-child {
+        display: none;
+    }
+    .content-area {
+        padding: 28px 32px;
+    }
+}
+
+/* Breakpoint: Tablets y Pantallas Angostas (<= 860px) */
+@media (max-width: 860px) {
+    .btn-toggle-nav {
+        display: flex;
+    }
+    
+    header {
+        padding: 0 14px;
+        gap: 8px;
+    }
+    
+    .brand-title {
+        font-size: 14px;
+    }
+    
+    .search-input {
+        width: 150px;
+    }
+    
+    .search-input:focus {
+        width: 200px;
+    }
+    
+    /* El TOC o la Barra de Módulos se convierten en Drawer deslizante lateral */
+    .toc-panel, .sidebar-tabs {
+        position: fixed;
+        top: var(--header-h);
+        left: 0;
+        bottom: 0;
+        width: 290px;
+        max-width: 85vw;
+        z-index: 999;
+        background-color: var(--bg-surface);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.6);
+        transform: translateX(-100%);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex !important;
+    }
+    
+    body.nav-open .toc-panel,
+    body.nav-open .sidebar-tabs {
+        transform: translateX(0);
+    }
+    
+    .content-area {
+        padding: 20px 16px;
+    }
+}
+
+/* Breakpoint: Móviles y Pantallas Ultra-Compactas (<= 560px) */
+@media (max-width: 560px) {
+    :root {
+        --header-h: 60px;
+    }
+    
+    header {
+        padding: 0 10px;
+    }
+    
+    .brand-subtitle {
+        display: none;
+    }
+    
+    .brand-icon {
+        font-size: 22px;
+    }
+    
+    .brand-title {
+        font-size: 13px;
+    }
+    
+    .badge-ver {
+        font-size: 9px;
+        padding: 1px 5px;
+    }
+    
+    .search-input {
+        width: 105px;
+        padding: 6px 8px 6px 26px;
+        font-size: 12px;
+    }
+    
+    .search-icon {
+        left: 7px;
+        font-size: 11px;
+    }
+    
+    .search-input:focus {
+        width: 140px;
+    }
+    
+    .btn-header {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+    
+    .btn-header .btn-text {
+        display: none;
+    }
+    
+    .content-area {
+        padding: 16px 12px;
+    }
+}
+
 @media print {
-    header, .toc-panel, .sidebar-tabs, .copy-btn { display: none !important; }
+    header, .toc-panel, .sidebar-tabs, .copy-btn, .btn-toggle-nav, .nav-backdrop { display: none !important; }
     body, .content-area {
         overflow: visible !important;
         height: auto !important;
@@ -443,12 +614,8 @@ mark.search-match {
         color: black !important;
     }
 }
-
-@media (max-width: 1024px) {
-    .toc-panel { display: none; }
-    .content-area { padding: 24px 20px; }
-}
 """
+
 
 
 # =============================================================================
@@ -480,32 +647,39 @@ def build_standalone_page(
 <body>
 
     <header>
-        <div class="brand">
-            <span class="brand-icon">{icon_emoji}</span>
-            <div>
-                <div class="brand-title">
-                    {page_title}
-                    <span class="badge-ver">{badge_text}</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button class="btn-header btn-toggle-nav" id="btnToggleNav" title="Abrir Índice del Documento">
+                <span>☰</span> <span class="nav-toggle-text">Índice</span>
+            </button>
+            <div class="brand">
+                <span class="brand-icon">{icon_emoji}</span>
+                <div>
+                    <div class="brand-title">
+                        {page_title}
+                        <span class="badge-ver">{badge_text}</span>
+                    </div>
+                    <div class="brand-subtitle" style="font-size: 11px; color: var(--text-muted); font-weight: 500;">{subtitle_text}</div>
                 </div>
-                <div style="font-size: 11px; color: var(--text-muted); font-weight: 500;">{subtitle_text}</div>
             </div>
         </div>
 
         <div class="header-actions">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="globalSearch" class="search-input" placeholder="Buscar en el documento...">
+                <input type="text" id="globalSearch" class="search-input" placeholder="Buscar...">
             </div>
 
             <button class="btn-header" id="themeToggle" title="Cambiar tema de color">
-                <span id="themeIcon">☀️</span> Tema
+                <span id="themeIcon">☀️</span> <span class="btn-text">Tema</span>
             </button>
 
             <button class="btn-header" id="printBtn" title="Imprimir o exportar como PDF">
-                🖨️ Imprimir
+                <span>🖨️</span> <span class="btn-text">Imprimir</span>
             </button>
         </div>
     </header>
+
+    <div class="nav-backdrop" id="navBackdrop"></div>
 
     <div class="app-container">
         <!-- Panel Izquierdo: Tabla de Contenidos Interactiva -->
@@ -519,6 +693,7 @@ def build_standalone_page(
             <div class="markdown-body" id="docContent"></div>
         </main>
     </div>
+
 
     <script>
         {marked_js}
@@ -568,6 +743,7 @@ def build_standalone_page(
             parsed = parseAlerts(parsed);
             originalHtml = parsed;
             contentEl.innerHTML = parsed;
+            makeTablesResponsive();
 
             contentEl.querySelectorAll('pre').forEach(pre => {{
                 const btn = document.createElement('button');
@@ -583,6 +759,17 @@ def build_standalone_page(
             }});
 
             buildTableOfContents();
+        }}
+
+        function makeTablesResponsive() {{
+            document.querySelectorAll('.markdown-body table').forEach(tbl => {{
+                if (!tbl.parentElement.classList.contains('table-container')) {{
+                    const wrap = document.createElement('div');
+                    wrap.className = 'table-container';
+                    tbl.parentNode.insertBefore(wrap, tbl);
+                    wrap.appendChild(tbl);
+                }}
+            }});
         }}
 
         function buildTableOfContents() {{
@@ -602,6 +789,7 @@ def build_standalone_page(
                 a.innerText = h.innerText.replace(/^[#\\s]+/, '');
                 a.onclick = (e) => {{
                     e.preventDefault();
+                    document.body.classList.remove('nav-open');
                     h.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
                     history.pushState(null, null, `#${{id}}`);
                 }};
@@ -614,6 +802,7 @@ def build_standalone_page(
             const contentEl = document.getElementById('docContent');
             if (!query) {{
                 contentEl.innerHTML = originalHtml;
+                makeTablesResponsive();
                 return;
             }}
 
@@ -637,6 +826,7 @@ def build_standalone_page(
 
             highlightTextNodes(temp);
             contentEl.innerHTML = temp.innerHTML;
+            makeTablesResponsive();
         }}
 
         document.getElementById('globalSearch').addEventListener('input', (e) => {{
@@ -654,7 +844,13 @@ def build_standalone_page(
 
         document.getElementById('printBtn').onclick = () => window.print();
 
+        const toggleBtn = document.getElementById('btnToggleNav');
+        const backdrop = document.getElementById('navBackdrop');
+        if (toggleBtn) toggleBtn.onclick = () => document.body.classList.toggle('nav-open');
+        if (backdrop) backdrop.onclick = () => document.body.classList.remove('nav-open');
+
         window.addEventListener('DOMContentLoaded', renderDocument);
+
     </script>
 </body>
 </html>
@@ -774,32 +970,40 @@ def build_technical_portal(out_files: list, marked_js: str, highlight_js: str):
 <body>
 
     <header>
-        <div class="brand">
-            <span class="brand-icon">🔬</span>
-            <div>
-                <div class="brand-title">
-                    Forensic Data Recovery Suite
-                    <span class="badge-ver">v2.5.0</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button class="btn-header btn-toggle-nav" id="btnToggleNav" title="Abrir Módulos Técnicos">
+                <span>☰</span> <span class="nav-toggle-text">Módulos</span>
+            </button>
+            <div class="brand">
+                <span class="brand-icon">🔬</span>
+                <div>
+                    <div class="brand-title">
+                        Forensic Data Recovery Suite
+                        <span class="badge-ver">v2.5.0</span>
+                    </div>
+                    <div class="brand-subtitle" style="font-size: 11px; color: var(--text-muted); font-weight: 500;">Portal Técnico, Arquitectura & Código</div>
                 </div>
-                <div style="font-size: 11px; color: var(--text-muted); font-weight: 500;">Portal Técnico, Arquitectura & Código</div>
             </div>
         </div>
 
         <div class="header-actions">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="globalSearch" class="search-input" placeholder="Buscar en la documentación...">
+                <input type="text" id="globalSearch" class="search-input" placeholder="Buscar...">
             </div>
 
             <button class="btn-header" id="themeToggle" title="Cambiar tema">
-                <span id="themeIcon">☀️</span> Tema
+                <span id="themeIcon">☀️</span> <span class="btn-text">Tema</span>
             </button>
 
             <button class="btn-header" id="printBtn" title="Imprimir o guardar como PDF">
-                🖨️ Imprimir
+                <span>🖨️</span> <span class="btn-text">Imprimir</span>
             </button>
         </div>
     </header>
+
+    <div class="nav-backdrop" id="navBackdrop"></div>
+
 
     <div class="app-container">
         <!-- 1. Barra Lateral de Módulos Técnicos -->
@@ -887,6 +1091,7 @@ def build_technical_portal(out_files: list, marked_js: str, highlight_js: str):
         function switchTab(docId) {{
             if (!DOC_MAP[docId]) return;
             currentDocId = docId;
+            document.body.classList.remove('nav-open');
 
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById(`tab-btn-${{docId}}`);
@@ -901,6 +1106,7 @@ def build_technical_portal(out_files: list, marked_js: str, highlight_js: str):
             }}
 
             contentEl.innerHTML = originalHtmlCache[docId];
+            makeTablesResponsive();
 
             contentEl.querySelectorAll('pre').forEach(pre => {{
                 const btn = document.createElement('button');
@@ -922,6 +1128,17 @@ def build_technical_portal(out_files: list, marked_js: str, highlight_js: str):
             if (searchVal) performSearch(searchVal);
         }}
 
+        function makeTablesResponsive() {{
+            document.querySelectorAll('.markdown-body table').forEach(tbl => {{
+                if (!tbl.parentElement.classList.contains('table-container')) {{
+                    const wrap = document.createElement('div');
+                    wrap.className = 'table-container';
+                    tbl.parentNode.insertBefore(wrap, tbl);
+                    wrap.appendChild(tbl);
+                }}
+            }});
+        }}
+
         function buildTableOfContents() {{
             const tocList = document.getElementById('tocList');
             tocList.innerHTML = '';
@@ -939,6 +1156,7 @@ def build_technical_portal(out_files: list, marked_js: str, highlight_js: str):
                 a.innerText = h.innerText.replace(/^[#\\s]+/, '');
                 a.onclick = (e) => {{
                     e.preventDefault();
+                    document.body.classList.remove('nav-open');
                     h.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
                     history.pushState(null, null, `#${{id}}`);
                 }};
@@ -951,6 +1169,7 @@ def build_technical_portal(out_files: list, marked_js: str, highlight_js: str):
             const contentEl = document.getElementById('docContent');
             if (!query) {{
                 contentEl.innerHTML = originalHtmlCache[currentDocId] || contentEl.innerHTML;
+                makeTablesResponsive();
                 return;
             }}
 
@@ -975,6 +1194,7 @@ def build_technical_portal(out_files: list, marked_js: str, highlight_js: str):
 
             highlightTextNodes(temp);
             contentEl.innerHTML = temp.innerHTML;
+            makeTablesResponsive();
         }}
 
         document.getElementById('globalSearch').addEventListener('input', (e) => {{
@@ -992,10 +1212,16 @@ def build_technical_portal(out_files: list, marked_js: str, highlight_js: str):
 
         document.getElementById('printBtn').onclick = () => window.print();
 
+        const toggleBtn = document.getElementById('btnToggleNav');
+        const backdrop = document.getElementById('navBackdrop');
+        if (toggleBtn) toggleBtn.onclick = () => document.body.classList.toggle('nav-open');
+        if (backdrop) backdrop.onclick = () => document.body.classList.remove('nav-open');
+
         window.addEventListener('DOMContentLoaded', () => {{
             initSidebarTabs();
             switchTab('tecnico');
         }});
+
     </script>
 </body>
 </html>

@@ -7,7 +7,7 @@ cronómetro de tiempo, velocidad en tiempo real (MB/s), volumen analizado y cont
 import time
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QProgressBar,
-    QFrame, QGridLayout
+    QFrame, QGridLayout, QSizePolicy
 )
 from PyQt5.QtCore import Qt, QTimer
 from core.disk_utils import format_size
@@ -63,6 +63,7 @@ class InfoBar(QFrame):
         self.lbl_current_target = QLabel("Esperando inicio de escaneo...")
         self.lbl_current_target.setStyleSheet("color: #c9d1d9; font-weight: 500; font-size: 12px;")
         self.lbl_current_target.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.lbl_current_target.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         top_row.addWidget(self.lbl_current_target, stretch=1)
 
         main_layout.addLayout(top_row)
@@ -90,9 +91,9 @@ class InfoBar(QFrame):
         prog_row.addWidget(self.prog_bar)
         main_layout.addLayout(prog_row)
 
-        # Fila 3: Rejilla de Métricas en Vivo (HUD)
+        # Fila 3: Rejilla de Métricas en Vivo (HUD) - Responsiva
         metrics_layout = QHBoxLayout()
-        metrics_layout.setSpacing(12)
+        metrics_layout.setSpacing(6)
 
         # Métrica 1: Tiempo
         self.lbl_time = self._create_metric_widget("⏱️ TIEMPO", "00:00:00")
@@ -118,7 +119,8 @@ class InfoBar(QFrame):
 
     def _create_metric_widget(self, title: str, default_val: str) -> dict:
         container = QFrame()
-        container.setStyleSheet("background-color: #0d1117; border-radius: 5px; padding: 4px 8px; border: 1px solid #21262d;")
+        container.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        container.setStyleSheet("background-color: #0d1117; border-radius: 5px; padding: 3px 6px; border: 1px solid #21262d;")
         layout = QVBoxLayout(container)
         layout.setContentsMargins(2, 2, 2, 2)
         layout.setSpacing(1)

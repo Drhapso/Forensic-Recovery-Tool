@@ -60,11 +60,17 @@ def main():
     except Exception as e:
         print(f"Advertencia: No se pudo inicializar la base de datos local: {e}", file=sys.stderr)
 
-    # 4. Soporte para pantallas de alta resolución (High-DPI / 4K)
+    # 4. Soporte para pantallas de alta resolución (High-DPI / 4K / Laptops con escalado fraccional 125%-150%)
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
     if hasattr(Qt, 'AA_EnableHighDpiScaling'):
         QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
         QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    if hasattr(Qt, 'HighDpiScaleFactorRoundingPolicy'):
+        QApplication.setHighDpiScaleFactorRoundingPolicy(
+            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+        )
 
     sys.excepthook = exception_hook
 

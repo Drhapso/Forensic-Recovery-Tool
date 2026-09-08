@@ -10,7 +10,8 @@ import datetime
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QFileDialog, QSplitter, QMessageBox,
-    QStatusBar, QFrame, QProgressDialog, QInputDialog, QCheckBox
+    QStatusBar, QFrame, QProgressDialog, QInputDialog, QCheckBox,
+    QApplication, QSizePolicy
 )
 from PyQt5.QtCore import Qt
 
@@ -27,7 +28,7 @@ from ui.theme import DARK_THEME_QSS
 from ui.demo_banner import DemoBanner
 
 class MainWindow(QMainWindow):
-    """Ventana principal del Recuperador de Datos."""
+    """Ventana principal del Recuperador de Datos con diseño responsivo adaptable."""
 
     def __init__(self, is_demo: bool = False):
         super().__init__()
@@ -36,8 +37,23 @@ class MainWindow(QMainWindow):
             self.setWindowTitle("🛡️ Forensic Recovery Suite [DEMO DE EVALUACIÓN - 24 HORAS]")
         else:
             self.setWindowTitle("Recuperador de Datos Forense - Forensic Data Recovery Suite")
-        self.resize(1360, 840)
-        self.setMinimumSize(1024, 650)
+
+        # Dimensionamiento inteligente adaptable a la resolución de pantalla disponible
+        app_inst = QApplication.instance()
+        screen = app_inst.primaryScreen() if app_inst else None
+        if screen:
+            avail = screen.availableGeometry()
+            init_w = min(1360, max(850, int(avail.width() * 0.92)))
+            init_h = min(840, max(540, int(avail.height() * 0.88)))
+            self.resize(init_w, init_h)
+            self.move(
+                avail.x() + max(0, (avail.width() - init_w) // 2),
+                avail.y() + max(0, (avail.height() - init_h) // 2)
+            )
+        else:
+            self.resize(1100, 700)
+
+        self.setMinimumSize(800, 520)
 
         self.scan_worker = None
         self.export_worker = None
@@ -51,26 +67,27 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
-        main_layout.setContentsMargins(12, 12, 12, 12)
-        main_layout.setSpacing(10)
+        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(8)
 
-        # 1. Encabezado Superior (Header)
+        # 1. Encabezado Superior Responsivo (Header)
         header_frame = QFrame()
         header_frame.setObjectName("Card")
         header_layout = QHBoxLayout(header_frame)
-        header_layout.setContentsMargins(12, 8, 12, 8)
+        header_layout.setContentsMargins(10, 6, 10, 6)
+        header_layout.setSpacing(10)
 
         title_box = QVBoxLayout()
+        title_box.setSpacing(2)
         lbl_app_title = QLabel("🛡️ RECUPERADOR DE DATOS FORENSE | DEEP RECOVERY SUITE")
-        lbl_app_title.setStyleSheet("font-size: 16px; font-weight: bold; color: #58a6ff;")
+        lbl_app_title.setStyleSheet("font-size: 15px; font-weight: bold; color: #58a6ff;")
         title_box.addWidget(lbl_app_title)
 
-        lbl_app_sub = QLabel("Análisis Multicapa: Papelera Forense ($Recycle.Bin), Huérfanos $R, Thumbcache 1080p/4K, Office Drafts, VSS y File Carving Estructural")
+        lbl_app_sub = QLabel("Análisis Multicapa: Papelera Forense ($Recycle.Bin), Huérfanos $R, Thumbcache 1080p/4K, Office Drafts, VSS y Carving")
+        lbl_app_sub.setWordWrap(True)
         lbl_app_sub.setStyleSheet("font-size: 11px; color: #8b949e;")
         title_box.addWidget(lbl_app_sub)
-        header_layout.addLayout(title_box)
-
-        header_layout.addStretch()
+        header_layout.addLayout(title_box, stretch=1)
 
         # Botones de Gestión de Sesiones Persistentes
         self.btn_new_session = QPushButton("➕ Nueva Sesión")
@@ -187,7 +204,7 @@ class MainWindow(QMainWindow):
         opts_row = QHBoxLayout()
         opts_row.setSpacing(16)
 
-        self.chk_preserve_names = QCheckBox("Restaurar con Nombres Originales")
+        self.chk_preserve_names = QCheckBox("Restaurar Nombres Originales")
         self.chk_preserve_names.setChecked(True)
         self.chk_preserve_names.setToolTip(
             "Restaura los archivos con su nombre real original, limpiando nombres temporales\n"
@@ -196,7 +213,7 @@ class MainWindow(QMainWindow):
         self.chk_preserve_names.setStyleSheet("font-weight: bold; color: #58a6ff;")
         opts_row.addWidget(self.chk_preserve_names)
 
-        self.chk_restore_tree = QCheckBox("Reconstruir Árbol de Carpetas y Subcarpetas Original")
+        self.chk_restore_tree = QCheckBox("Reconstruir Árbol de Carpetas")
         self.chk_restore_tree.setChecked(True)
         self.chk_restore_tree.setToolTip(
             "Recrea en la carpeta destino la estructura de directorios exacta (Disco C\\Users\\...)\n"

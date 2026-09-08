@@ -112,21 +112,33 @@ class ResultsTable(QWidget):
         # -------------------------------------------------------------
         filters_frame = QFrame()
         filters_frame.setStyleSheet("background-color: #161b22; border-radius: 6px; padding: 4px; border: 1px solid #30363d;")
-        filters_layout = QHBoxLayout(filters_frame)
-        filters_layout.setContentsMargins(6, 4, 6, 4)
-        filters_layout.setSpacing(8)
+        filters_layout = QVBoxLayout(filters_frame)
+        filters_layout.setContentsMargins(6, 6, 6, 6)
+        filters_layout.setSpacing(6)
 
-        # 1. Búsqueda rápida de texto
+        # Fila 1: Búsqueda rápida de texto amplia y botón Limpiar
+        row_search = QHBoxLayout()
+        row_search.setSpacing(8)
+
         self.txt_search = QLineEdit()
-        self.txt_search.setPlaceholderText("🔍 Buscar por nombre o ruta...")
+        self.txt_search.setPlaceholderText("🔍 Buscar en tiempo real por nombre, ruta o tipo...")
         self.txt_search.setClearButtonEnabled(True)
         self.txt_search.textChanged.connect(self._apply_filters_and_sort)
-        filters_layout.addWidget(self.txt_search, stretch=3)
+        row_search.addWidget(self.txt_search, stretch=1)
 
-        # 2. Filtro por Categoría General
+        self.btn_clear_filters = QPushButton("🔄 Limpiar Filtros")
+        self.btn_clear_filters.setToolTip("Restablecer la búsqueda y todos los filtros.")
+        self.btn_clear_filters.clicked.connect(self._clear_filters)
+        row_search.addWidget(self.btn_clear_filters)
+        filters_layout.addLayout(row_search)
+
+        # Fila 2: Filtros desplegables (Categoría, Tipo/Ext, Calidad)
+        row_combos = QHBoxLayout()
+        row_combos.setSpacing(8)
+
         lbl_cat = QLabel("Categoría:")
         lbl_cat.setStyleSheet("color: #8b949e; font-size: 11px; font-weight: bold;")
-        filters_layout.addWidget(lbl_cat)
+        row_combos.addWidget(lbl_cat)
 
         self.combo_category = QComboBox()
         self.combo_category.addItems([
@@ -140,22 +152,20 @@ class ResultsTable(QWidget):
             "Otros"
         ])
         self.combo_category.currentIndexChanged.connect(self._on_category_changed)
-        filters_layout.addWidget(self.combo_category, stretch=2)
+        row_combos.addWidget(self.combo_category, stretch=1)
 
-        # 3. Filtro por Tipo de Archivo / Extensión Específica
-        lbl_ext = QLabel("Tipo / Ext:")
+        lbl_ext = QLabel("Tipo:")
         lbl_ext.setStyleSheet("color: #8b949e; font-size: 11px; font-weight: bold;")
-        filters_layout.addWidget(lbl_ext)
+        row_combos.addWidget(lbl_ext)
 
         self.combo_extension = QComboBox()
-        self.combo_extension.addItem("Todos los Tipos (*.*)", "")
+        self.combo_extension.addItem("Todos (*.*)", "")
         self.combo_extension.currentIndexChanged.connect(self._apply_filters_and_sort)
-        filters_layout.addWidget(self.combo_extension, stretch=2)
+        row_combos.addWidget(self.combo_extension, stretch=1)
 
-        # 4. Filtro por Calidad / Usabilidad Forense
         lbl_quality = QLabel("Calidad:")
         lbl_quality.setStyleSheet("color: #e3b341; font-size: 11px; font-weight: bold;")
-        filters_layout.addWidget(lbl_quality)
+        row_combos.addWidget(lbl_quality)
 
         self.combo_quality = QComboBox()
         self.combo_quality.addItem("Todas las Calidades", "all")
@@ -163,14 +173,9 @@ class ResultsTable(QWidget):
         self.combo_quality.addItem("🌟+🟡 Media y Alta (≥ 50%)", "usable")
         self.combo_quality.addItem("🛡️ Ocultar Inutilizables (< 20%)", "hide_junk")
         self.combo_quality.currentIndexChanged.connect(self._apply_filters_and_sort)
-        filters_layout.addWidget(self.combo_quality, stretch=2)
+        row_combos.addWidget(self.combo_quality, stretch=1)
 
-        # 5. Botón Limpiar Filtros
-        self.btn_clear_filters = QPushButton("🔄 Limpiar")
-        self.btn_clear_filters.setToolTip("Restablecer la búsqueda y los filtros de tipo de archivo y calidad.")
-        self.btn_clear_filters.clicked.connect(self._clear_filters)
-        filters_layout.addWidget(self.btn_clear_filters)
-
+        filters_layout.addLayout(row_combos)
         layout.addWidget(filters_frame)
 
         # -------------------------------------------------------------
@@ -180,9 +185,9 @@ class ResultsTable(QWidget):
         sort_frame.setStyleSheet("background-color: #161b22; border-radius: 6px; padding: 4px; border: 1px solid #30363d;")
         sort_layout = QHBoxLayout(sort_frame)
         sort_layout.setContentsMargins(6, 4, 6, 4)
-        sort_layout.setSpacing(8)
+        sort_layout.setSpacing(6)
 
-        lbl_sort = QLabel("🔃 Organizar por:")
+        lbl_sort = QLabel("🔃 Ordenar:")
         lbl_sort.setStyleSheet("color: #58a6ff; font-size: 11px; font-weight: bold;")
         sort_layout.addWidget(lbl_sort)
 
@@ -200,32 +205,36 @@ class ResultsTable(QWidget):
         self.combo_sort.addItem("🕒 Fecha (Más reciente)", "date_desc")
         self.combo_sort.addItem("🕒 Fecha (Más antigua)", "date_asc")
         self.combo_sort.currentIndexChanged.connect(self._apply_filters_and_sort)
-        sort_layout.addWidget(self.combo_sort, stretch=3)
+        sort_layout.addWidget(self.combo_sort, stretch=2)
 
         sort_layout.addStretch()
 
         # Botón de selección inteligente de Alta Calidad
-        self.btn_select_high = QPushButton("🌟 Solo Alta Calidad")
-        self.btn_select_high.setStyleSheet("background-color: #238636; color: #ffffff; font-weight: bold; border-radius: 4px; padding: 4px 8px;")
+        self.btn_select_high = QPushButton("🌟 Alta Calidad")
+        self.btn_select_high.setStyleSheet("background-color: #238636; color: #ffffff; font-weight: bold; border-radius: 4px; padding: 4px 8px; font-size: 11px;")
         self.btn_select_high.setToolTip("Marca exclusivamente los archivos con alta usabilidad verificada (≥ 80%) y desmarca elementos de baja calidad o basura.")
         self.btn_select_high.clicked.connect(self._select_high_quality_checks)
         sort_layout.addWidget(self.btn_select_high)
 
-        # Botones de selección masiva
+        # Botones de selección masiva compactos
         self.btn_select_all = QPushButton("✔ Todos")
+        self.btn_select_all.setStyleSheet("font-size: 11px; padding: 4px 8px;")
         self.btn_select_all.clicked.connect(lambda: self._set_all_checks(True))
         sort_layout.addWidget(self.btn_select_all)
 
-        self.btn_select_visible = QPushButton("✔ Solo Visibles")
+        self.btn_select_visible = QPushButton("✔ Visibles")
+        self.btn_select_visible.setStyleSheet("font-size: 11px; padding: 4px 8px;")
         self.btn_select_visible.setToolTip("Marca las casillas únicamente de los archivos que coinciden con los filtros actuales.")
         self.btn_select_visible.clicked.connect(self._select_visible_checks)
         sort_layout.addWidget(self.btn_select_visible)
 
-        self.btn_deselect_all = QPushButton("✖ Deseleccionar")
+        self.btn_deselect_all = QPushButton("✖ Ninguno")
+        self.btn_deselect_all.setStyleSheet("font-size: 11px; padding: 4px 8px;")
         self.btn_deselect_all.clicked.connect(lambda: self._set_all_checks(False))
         sort_layout.addWidget(self.btn_deselect_all)
 
         layout.addWidget(sort_frame)
+
 
         # -------------------------------------------------------------
         # TABLA PRINCIPAL DE DATOS (9 Columnas)

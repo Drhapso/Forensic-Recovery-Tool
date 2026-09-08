@@ -1,0 +1,5 @@
+git add .
+
+git commit -m "aquí escribo qué cambié, por ejemplo: corregí el menú de inicio"
+
+git push

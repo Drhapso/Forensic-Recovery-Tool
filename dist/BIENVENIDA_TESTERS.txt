@@ -1,0 +1,70 @@
+==============================================================================
+   BIENVENIDA E INTRODUCCIÓN PARA EVALUADORES (FORENSIC RECOVERY DEMO 24H)
+==============================================================================
+
+¡Te damos la bienvenida a la fase de evaluación de Forensic Data Recovery Suite!
+
+Esta versión es una copia de demostración portable e independiente (Forensic_Recovery_DEMO.exe)
+diseñada para que puedas probar las capacidades de la suite forense antes del lanzamiento comercial.
+
+------------------------------------------------------------------------------
+1. ¿QUÉ ES ESTA HERRAMIENTA?
+------------------------------------------------------------------------------
+Es una suite forense de recuperación de datos en entornos Windows. Opera en modo
+estricto de solo lectura para proteger tus unidades sin sobreescribir información.
+Incluye aislamiento estricto de unidades (para evitar mezclar resultados de otros discos)
+y 5 fases de análisis multicapa.
+
+------------------------------------------------------------------------------
+2. SOBRE EL PERÍODO DE PRUEBA DE 24 HORAS
+------------------------------------------------------------------------------
+- Dispones de 24 horas continuas a partir de su primera apertura en este equipo.
+- Al vencerse las 24 horas, la copia de prueba se bloqueará y se autolimpiará.
+- Si el equipo de desarrollo publica una futura versión de prueba (Beta 2, Preview),
+  podrás probarla en esta misma máquina con un nuevo ciclo de evaluación.
+
+------------------------------------------------------------------------------
+3. CÓMO USARLA EN 3 PASOS
+------------------------------------------------------------------------------
+1. Selecciona la unidad o carpeta en el panel izquierdo (Usa el botón [Solo Esta]).
+2. Marca los tipos de archivo que buscas (Documentos, Fotos, etc.).
+3. Pulsa "Iniciar Escaneo". Al finalizar, haz clic en cualquier archivo para
+   previsualizarlo y pulsa "Recuperar Seleccionados".
+
+------------------------------------------------------------------------------
+4. RESULTADOS REALES DEL FUNCIONAMIENTO (TRANSPARENCIA TOTAL)
+------------------------------------------------------------------------------
+Ningún software del mundo puede recuperar el 100% en todas las situaciones,
+porque si un archivo borrado ha sido sobreescrito físicamente por nuevos datos,
+los sectores originales se destruyen.
+
+Tasas reales de éxito según el escenario:
+• Papelera de reciclaje vaciada recientemente: 90% - 100% de éxito (nombres intactos).
+• Fotos en pendrives dañados/formateados:      80% - 95% de éxito (Thumbcache y MFT).
+• Documentos cerrados tras apagón o sin salvar: 80% - 95% de éxito (Auto-recuperación).
+• Archivos borrados hace días en discos HDD:   65% - 85% de éxito (vía NTFS MFT).
+• Discos con formato rápido (Quick Format):    50% - 75% de éxito (Carving contiguo).
+• Discos SSD modernos con comando TRIM:       10% - 30% de éxito (TRIM borra celdas).
+• Archivos borrados hace meses en uso activo: 15% - 35% de éxito (sobreescritura).
+
+------------------------------------------------------------------------------
+5. PARTES EN DESARROLLO ACTIVO (BETA / WIP)
+------------------------------------------------------------------------------
+• Interfaz de usuario (UI): Modo galería masiva de miniaturas y temas en optimización.
+• Unidades físicas en bruto: Requieren "Ejecutar como Administrador" para leer
+  directamente los sectores físicos del disco saltándose las restricciones de Windows.
+• Discos lentos: En puertos USB 2.0 antiguos o discos con sectores defectuosos,
+  la velocidad depende de la tasa de transferencia del hardware.
+
+------------------------------------------------------------------------------
+6. TU FEEDBACK COMO TESTER
+------------------------------------------------------------------------------
+Agradecemos tus comentarios sobre:
+1. ¿Fue intuitivo el manejo de la herramienta?
+2. ¿Los archivos recuperados abrieron correctamente en sus programas nativos?
+3. ¿Hubo algún problema de estabilidad o lentitud?
+
+¡Gracias por probar Forensic Data Recovery Suite!
+Para dudas, soporte o licencias completas: contacta al desarrollador oficial.
+==============================================================================
+

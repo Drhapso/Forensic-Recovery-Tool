@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Recuperador de Datos Forense
+GenericName=Herramienta de Recuperación Forense
+Comment=Suite de recuperación y rescate de archivos forense para discos y memorias
+Exec=RecuperadorDeDatos
+Icon=system-file-manager
+Terminal=false
+Categories=Utility;System;Security;
+Keywords=recovery;forensic;undelete;rescue;archivos;recuperar;
+StartupNotify=true
+

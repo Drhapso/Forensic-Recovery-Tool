@@ -1,5 +1,5 @@
 git add .
 
-git commit -m "aquí escribo qué cambié, por ejemplo: corregí el menú de inicio"
+git commit -m "Se reparo la vista responsiva segun la resolucion"
 
 git push

@@ -4,11 +4,15 @@ Muestra el tiempo restante en tiempo real, barra de consumo temporal,
 indicadores visuales y advertencia de caducidad.
 """
 
+import sys
+import os
 from PyQt5.QtWidgets import (
     QFrame, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, 
-    QProgressBar, QMessageBox
+    QProgressBar, QMessageBox, QDialog, QTextBrowser, QDialogButtonBox,
+    QApplication
 )
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QUrl
+from PyQt5.QtGui import QDesktopServices
 from core.trial_manager import TrialManager, TRIAL_DURATION_SECONDS
 
 
@@ -129,24 +133,53 @@ class DemoBanner(QFrame):
         layout.addWidget(self.btn_buy)
 
     def _show_tester_guide(self):
-        """Muestra la guía completa de bienvenida para evaluadores en una ventana modal."""
-        import os
-        from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTextBrowser, QDialogButtonBox
+        """Muestra la guía completa de bienvenida para evaluadores en una ventana modal y permite abrirla en el navegador."""
         dlg = QDialog(self)
         dlg.setWindowTitle("🧪 Guía de Bienvenida e Introducción para Evaluadores (Beta Testers)")
-        dlg.resize(860, 620)
+
+        screen = QApplication.primaryScreen().availableGeometry() if QApplication.primaryScreen() else None
+        dlg_w = min(860, int(screen.width() * 0.85)) if screen else 860
+        dlg_h = min(620, int(screen.height() * 0.80)) if screen else 620
+        dlg.resize(dlg_w, dlg_h)
         dlg_layout = QVBoxLayout(dlg)
 
         browser = QTextBrowser()
         browser.setOpenExternalLinks(True)
 
-        base_dir = getattr(sys, "_MEIPASS", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        guide_path = os.path.join(base_dir, "docs", "GUIA_PARA_TESTERS.md")
-        if not os.path.exists(guide_path):
-            guide_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "GUIA_PARA_TESTERS.md")
-        if os.path.exists(guide_path):
+        candidate_dirs = [
+            getattr(sys, "_MEIPASS", ""),
+            os.path.dirname(sys.executable) if hasattr(sys, "executable") else "",
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            os.getcwd(),
+        ]
+
+        guide_md_path = None
+        guide_html_path = None
+
+        for cdir in candidate_dirs:
+            if not cdir:
+                continue
+            # Buscar archivo markdown
+            md_try1 = os.path.join(cdir, "docs", "GUIA_PARA_TESTERS.md")
+            md_try2 = os.path.join(cdir, "GUIA_PARA_TESTERS.md")
+            if not guide_md_path:
+                if os.path.exists(md_try1):
+                    guide_md_path = md_try1
+                elif os.path.exists(md_try2):
+                    guide_md_path = md_try2
+
+            # Buscar archivo HTML responsivo
+            html_try1 = os.path.join(cdir, "docs", "guia_testers.html")
+            html_try2 = os.path.join(cdir, "guia_testers.html")
+            if not guide_html_path:
+                if os.path.exists(html_try1):
+                    guide_html_path = html_try1
+                elif os.path.exists(html_try2):
+                    guide_html_path = html_try2
+
+        if guide_md_path and os.path.exists(guide_md_path):
             try:
-                with open(guide_path, "r", encoding="utf-8") as f:
+                with open(guide_md_path, "r", encoding="utf-8") as f:
                     content = f.read()
                 if hasattr(browser, "setMarkdown"):
                     browser.setMarkdown(content)
@@ -155,13 +188,42 @@ class DemoBanner(QFrame):
             except Exception:
                 browser.setPlainText("No se pudo cargar la guía.")
         else:
-            browser.setPlainText("Guía para testers no encontrada en docs/GUIA_PARA_TESTERS.md")
+            browser.setPlainText("Guía para testers no encontrada.")
 
         dlg_layout.addWidget(browser)
 
+        # Botonera inferior: Botón abrir en navegador + botón cerrar
+        btn_layout = QHBoxLayout()
+        if guide_html_path and os.path.exists(guide_html_path):
+            btn_browser = QPushButton("🌐 Abrir en Navegador Web (HTML Interactivo)")
+            btn_browser.setStyleSheet("""
+                QPushButton {
+                    background-color: #238636;
+                    color: #ffffff;
+                    font-weight: bold;
+                    border: 1px solid #2ea043;
+                    border-radius: 6px;
+                    padding: 6px 14px;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: #2ea043;
+                }
+            """)
+            target_html = guide_html_path
+            btn_browser.clicked.connect(lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(target_html)))
+            btn_layout.addWidget(btn_browser)
+
+        btn_layout.addStretch()
+
         btn_box = QDialogButtonBox(QDialogButtonBox.Ok)
+        ok_btn = btn_box.button(QDialogButtonBox.Ok)
+        if ok_btn:
+            ok_btn.setText("Cerrar")
         btn_box.accepted.connect(dlg.accept)
-        dlg_layout.addWidget(btn_box)
+        btn_layout.addWidget(btn_box)
+
+        dlg_layout.addLayout(btn_layout)
         dlg.exec_()
 
     def _update_countdown(self):
